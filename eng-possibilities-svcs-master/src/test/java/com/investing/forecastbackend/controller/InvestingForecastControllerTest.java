@@ -65,7 +65,7 @@ class InvestingForecastControllerTest {
         userRequest.put("Real Estate", 20.0);
 
         ForecastRequest forecastRequest = new ForecastRequest();
-        forecastRequest.setRequest(userRequest);
+        //forecastRequest.setRequest(userRequest);
         String json = mapper.writeValueAsString(forecastRequest);
 
         String response = mvc.perform(post("/api/v1/forecast")

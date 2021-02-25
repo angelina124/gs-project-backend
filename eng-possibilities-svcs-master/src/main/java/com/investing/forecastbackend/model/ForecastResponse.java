@@ -12,4 +12,12 @@ import java.util.List;
 // TODO Use Lombok for Getters and Setters (commented above), Optionally you can generate them.
 public class ForecastResponse {
     private List<Double> response;
+
+    public List<Double> getResponse() {
+        return response;
+    }
+
+    public void setResponse(List<Double> response) {
+        this.response = response;
+    }
 }
