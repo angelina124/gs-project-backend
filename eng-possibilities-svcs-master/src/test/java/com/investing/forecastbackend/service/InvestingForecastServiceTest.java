@@ -13,7 +13,8 @@ public class InvestingForecastServiceTest {
 
         //System.out.println("result " + a.size());
         for(InvestmentDetail det:a) {
-            System.out.println(det.getCategory());
+            //System.out.println(det.getCategory());
+            System.out.println(det.getMinimum());
         }
 
     }

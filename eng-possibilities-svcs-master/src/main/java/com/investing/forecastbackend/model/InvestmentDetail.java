@@ -5,10 +5,10 @@ import java.util.*;
 // TODO Model the data read from ../resources/data/investment-details.json
 public class InvestmentDetail {
     private String category;
-    private String minimum;
+    private Double minimum;
     private String[] data;
 
-    public InvestmentDetail(String cate, String min, String[] data) {
+    public InvestmentDetail(String cate, Double min, String[] data) {
         this.category = cate;
         this.minimum = min;
         this.data = data;
@@ -22,11 +22,11 @@ public class InvestmentDetail {
         this.category = category;
     }
 
-    public String getMinimum() {
+    public Double getMinimum() {
         return minimum;
     }
 
-    public void setMinimum(String minimum) {
+    public void setMinimum(Double minimum) {
         this.minimum = minimum;
     }
 

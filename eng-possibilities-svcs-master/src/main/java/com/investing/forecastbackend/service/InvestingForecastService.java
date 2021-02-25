@@ -43,12 +43,12 @@ public class InvestingForecastService {
                 JSONArray dataArray = (JSONArray)investment.get("data");
                 String[] data = new String[dataArray.size()];
 
-                for(int i = 0; i < dataArray.size(); i++) {
+                for (int i = 0; i < dataArray.size(); i++) {
                     data[i] = (String) dataArray.get(i);
                 }
 
-                InvestmentDetail investDetail = new InvestmentDetail((String)investment.get("category"), (String)investment.get("minimum"),
-                        data);
+                InvestmentDetail investDetail = new InvestmentDetail((String)investment.get("category"),
+                        Double.parseDouble((String)investment.get("minimum")), data);
 
                 listInvestmentDetail.add(investDetail);
             }
@@ -61,7 +61,6 @@ public class InvestingForecastService {
     }
 
     public ForecastResponse getInvestmentOptions(final ForecastRequest request) {
-        // TODO write algorithm to calculate investment forecast from request configuration
         // TODO write algorithm to calculate investment forecast from request configuration
         ForecastResponse response = new ForecastResponse();
         double totalReturn = 0.0;
@@ -108,6 +107,5 @@ public class InvestingForecastService {
         }
         return response;
     }
-
 }
 
