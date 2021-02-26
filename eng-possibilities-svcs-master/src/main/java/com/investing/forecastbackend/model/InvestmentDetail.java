@@ -6,9 +6,9 @@ import java.util.*;
 public class InvestmentDetail {
     private String category;
     private Double minimum;
-    private String[] data;
+    private Double[] data;
 
-    public InvestmentDetail(String cate, Double min, String[] data) {
+    public InvestmentDetail(String cate, Double min, Double[] data) {
         this.category = cate;
         this.minimum = min;
         this.data = data;
@@ -30,11 +30,11 @@ public class InvestmentDetail {
         this.minimum = minimum;
     }
 
-    public String[] getData() {
+    public Double[] getData() {
         return data;
     }
 
-    public void setData(String[] data) {
+    public void setData(Double[] data) {
         this.data = data;
     }
 }

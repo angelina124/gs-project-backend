@@ -1,18 +1,20 @@
 package com.investing.forecastbackend.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.investing.forecastbackend.model.ForecastRequest;
 
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
 
-import java.util.Iterator;
+import java.io.File;
 
 import com.investing.forecastbackend.model.ForecastResponse;
 import com.investing.forecastbackend.model.InvestmentDetail;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,25 +30,25 @@ public class InvestingForecastService {
         JSONParser parser = new JSONParser();
 
         //Object jObj = parser.parse(new FileReader("/Users/sheonmwapinza/OneDrive - PennO365/JAVAWORKSPACE/GS–Project/eng-possibilities-svcs-master/src/main/resources/data/investment-details.json"));
+        ///Users/ishapalakurthy/Downloads/GSOfficial/gs-project-backend/eng-possibilities-svcs-master/src/main/resources/data
         List<InvestmentDetail> listInvestmentDetail = new ArrayList<>();
         try {
-            //file directory starts with src
-            Object investmentObject = parser.parse(new FileReader("src/main/resources/data/investment-details.json"));
+            ObjectMapper objectMapper = new ObjectMapper();
+            File resource = new ClassPathResource("data/investment-details.json").getFile();
+            Object investmentObject = parser.parse(new FileReader(resource));
             JSONObject jsonObject = (JSONObject)investmentObject;
             JSONArray investments = (JSONArray)jsonObject.get("Investments");
 
-            //Iterator iterator = investments.iterator();
-            for(int j = 0; j<investments.size(); j++) {
+            for (int j = 0; j < investments.size(); j++) {
 
                 JSONObject investment = (JSONObject) investments.get(j);
 
                 JSONArray dataArray = (JSONArray)investment.get("data");
-                String[] data = new String[dataArray.size()];
+                Double[] data = new Double[dataArray.size()];
 
                 for (int i = 0; i < dataArray.size(); i++) {
-                    data[i] = (String) dataArray.get(i);
+                    data[i] = Double.parseDouble((String) dataArray.get(i));
                 }
-
                 InvestmentDetail investDetail = new InvestmentDetail((String)investment.get("category"),
                         Double.parseDouble((String)investment.get("minimum")), data);
 
@@ -55,13 +57,12 @@ public class InvestingForecastService {
         } catch(Exception e) {
             e.printStackTrace();
         }
-
-        //System.out.print(listInvestmentDetail.toString());
         return listInvestmentDetail;
     }
 
     public ForecastResponse getInvestmentOptions(final ForecastRequest request) {
         // TODO write algorithm to calculate investment forecast from request configuration
+        List<Double> resp = new ArrayList<>();
         ForecastResponse response = new ForecastResponse();
         double totalReturn = 0.0;
         int year = 1;
@@ -79,6 +80,7 @@ public class InvestingForecastService {
 
                 if (sector.equals("Energy")) {
                     totalReturn += principal * Math.pow(1 + 0.048341, year);
+
                 } else if (sector.equals("Technology")) {
                     totalReturn += principal * Math.pow(1 + -0.081196, year);
 
@@ -102,9 +104,10 @@ public class InvestingForecastService {
                 }
             //return = principal(1 + CAGR/1)^year
             }
-        year++;
-        response.getResponse().add(totalReturn);
+            year++;
+            resp.add(totalReturn);
         }
+        response.setResponse(resp);
         return response;
     }
 }
