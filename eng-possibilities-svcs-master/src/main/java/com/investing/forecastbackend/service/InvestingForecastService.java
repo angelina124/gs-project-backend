@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
+import java.rmi.NotBoundException;
 import java.util.*;
 import java.io.FileReader;
 
@@ -36,79 +37,101 @@ public class InvestingForecastService {
             ObjectMapper objectMapper = new ObjectMapper();
             File resource = new ClassPathResource("data/investment-details.json").getFile();
             Object investmentObject = parser.parse(new FileReader(resource));
-            JSONObject jsonObject = (JSONObject)investmentObject;
-            JSONArray investments = (JSONArray)jsonObject.get("Investments");
+            JSONObject jsonObject = (JSONObject) investmentObject;
+            JSONArray investments = (JSONArray) jsonObject.get("Investments");
 
             for (int j = 0; j < investments.size(); j++) {
 
                 JSONObject investment = (JSONObject) investments.get(j);
 
-                JSONArray dataArray = (JSONArray)investment.get("data");
+                JSONArray dataArray = (JSONArray) investment.get("data");
                 Double[] data = new Double[dataArray.size()];
 
                 for (int i = 0; i < dataArray.size(); i++) {
                     data[i] = Double.parseDouble((String) dataArray.get(i));
                 }
-                InvestmentDetail investDetail = new InvestmentDetail((String)investment.get("category"),
-                        Double.parseDouble((String)investment.get("minimum")), data);
+                InvestmentDetail investDetail = new InvestmentDetail((String) investment.get("category"),
+                        Double.parseDouble((String) investment.get("minimum")), data);
 
                 listInvestmentDetail.add(investDetail);
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return listInvestmentDetail;
     }
 
+    //not sure how to handle all the exceptions in frontend
     public ForecastResponse getInvestmentOptions(final ForecastRequest request) {
         // TODO write algorithm to calculate investment forecast from request configuration
+        Map<String, Double> minimumsMap = makeMinList();
+        Map<String, Double> cagRates = calculateCAGR();
         List<Double> resp = new ArrayList<>();
         ForecastResponse response = new ForecastResponse();
         double totalReturn = 0.0;
         int year = 1;
         double principal = 0.0;
+        double totalPercent = 0.0;
 
-        while (year <= 10) {
+        try {
             for (String sector : request.getRequest().keySet()) {
-                //need to check if percentage meets sector minimum
+                //checks if percentage invested meets sector minimum
                 double percentage = request.getRequest().get(sector);
-                principal = totalReturn * percentage * 0.01;
-
-                if (year == 1) {
-                    principal = 0.01 * percentage * 10000;
+                double minPercentInvest = minimumsMap.get(sector);
+                if (percentage < minPercentInvest) {
+                    throw new Exception("Sector minimum is not attained. " +
+                            "Must invest at least " + minPercentInvest + " percent into " + sector);
                 }
-
-                if (sector.equals("Energy")) {
-                    totalReturn += principal * Math.pow(1 + 0.048341, year);
-
-                } else if (sector.equals("Technology")) {
-                    totalReturn += principal * Math.pow(1 + -0.081196, year);
-
-                } else if (sector.equals("Financial Services")) {
-                    totalReturn += principal * Math.pow(1 + -0.134428, year);
-
-                } else if (sector.equals("Real Estate")) {
-                    totalReturn += principal * Math.pow(1 + -0.033362, year);
-
-                } else if (sector.equals("Pharmaceuticals")) {
-                    totalReturn += principal * Math.pow(1 + 0.000000, year);
-
-                } else if (sector.equals("Airline")) {
-                    totalReturn += principal * Math.pow(1 + -0.020054, year);
-
-                } else if (sector.equals("Retail")) {
-                    totalReturn += principal * Math.pow(1 + 0.091558, year);
-
-                } else if (sector.equals("Gaming")) {
-                    totalReturn += principal * Math.pow(1 + -0.016982, year);
-                }
-            //return = principal(1 + CAGR/1)^year
+                totalPercent += request.getRequest().get(sector);
             }
-            year++;
-            resp.add(totalReturn);
+            if (totalPercent > 100.0) {
+                throw new Exception("Total invested percentage may not exceed 100%");
+            }
+
+            while (year <= 10) {
+                for (String sector : request.getRequest().keySet()) {
+                    double percentage = request.getRequest().get(sector);
+                    principal = totalReturn * percentage * 0.01;
+                    if (year == 1) {
+                        principal = 0.01 * percentage * 10000;
+                    }
+
+                    double cagr = cagRates.get(sector);
+                    totalReturn += compound(principal, cagr, year);
+                    //return = principal(1 + CAGR/1)^year
+                }
+                year++;
+                resp.add(totalReturn);
+            }
+            response.setResponse(resp);
+            return response;
+        } catch(Exception e) {
+            e.printStackTrace(); //need to do something else here? do we need to place try catch differently?
         }
-        response.setResponse(resp);
         return response;
+    }
+
+    private Map<String, Double> calculateCAGR() {
+        Map<String, Double> cagRates = new HashMap<>();
+        List<InvestmentDetail> investmentDetailList = getInvestmentOptions();
+        for (InvestmentDetail detail : investmentDetailList) {
+            double cagr = Math.pow(((detail.getData()[detail.getData().length - 1]) / detail.getData()[0]), (1/9.0)) - 1;
+            cagRates.put(detail.getCategory(), cagr);
+        }
+        return cagRates;
+    }
+
+    private Map<String,Double> makeMinList() {
+        Map<String, Double> minimums = new HashMap<>();
+        List<InvestmentDetail> investmentDetailList = getInvestmentOptions();
+        for (InvestmentDetail detail : investmentDetailList) {
+            minimums.put(detail.getCategory(), detail.getMinimum());
+        }
+        return minimums;
+    }
+
+    private double compound(double principal, double cagr, int year) {
+        return principal * Math.pow(1 + cagr, year);
     }
 }
 

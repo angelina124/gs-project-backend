@@ -30,8 +30,8 @@ public class InvestingForecastServiceTest {
     public void testInvestingAlgorithmTest() {
         InvestingForecastService seb = new InvestingForecastService();
         Map<String, Double> req = new HashMap<>();
-        req.put("Energy", 60.0);
-        req.put("Pharmaceuticals", 40.0);
+        req.put("Energy", 50.0);
+        req.put("Pharmaceuticals", 20.0);
         ForecastRequest fRequest = new ForecastRequest();
         fRequest.setRequest(req);
         ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);
@@ -39,5 +39,13 @@ public class InvestingForecastServiceTest {
         for (Double d : fResponse.getResponse()) {
             System.out.println(d);
         }
+    }
+
+    @Test
+    public void testCalculateCAGRTest() {
+        InvestingForecastService seb = new InvestingForecastService();
+        //Map<String, Double> cagr = seb.calculateCAGR();
+        //double x = cagr.get("Energy");
+        //System.out.println(x);
     }
 }

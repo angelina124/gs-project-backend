@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -34,7 +35,9 @@ public class InvestingForecastController {
 
     @PostMapping
     @SneakyThrows
-    public ResponseEntity<ForecastResponse> getInvestmentOptions(@RequestBody final ForecastRequest request) {
+        public ResponseEntity<ForecastResponse> getInvestmentOptions(@RequestBody final Map<String, Double> r) {
+        ForecastRequest request = new ForecastRequest();
+        request.setRequest(r);
         log.info("Received request to forecast investment: {}", objectMapper.writeValueAsString(request));
         return ResponseEntity.ok(service.getInvestmentOptions(request));
     }
