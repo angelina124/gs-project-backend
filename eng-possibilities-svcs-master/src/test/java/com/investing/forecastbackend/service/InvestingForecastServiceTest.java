@@ -27,11 +27,41 @@ public class InvestingForecastServiceTest {
     }
 
     @Test
-    public void testInvestingAlgorithmTest() {
+    public void testInvestingAlgorithmTestNormal() {
         InvestingForecastService seb = new InvestingForecastService();
         Map<String, Double> req = new HashMap<>();
         req.put("Energy", 50.0);
         req.put("Pharmaceuticals", 20.0);
+        ForecastRequest fRequest = new ForecastRequest();
+        fRequest.setRequest(req);
+        ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);
+
+        for (Double d : fResponse.getResponse()) {
+            System.out.println(d);
+        }
+    }
+
+    @Test
+    public void testInvestingAlgorithmTestPercentageMin() {
+        InvestingForecastService seb = new InvestingForecastService();
+        Map<String, Double> req = new HashMap<>();
+        req.put("Energy", 0.0);
+        req.put("Pharmaceuticals", 20.0);
+        ForecastRequest fRequest = new ForecastRequest();
+        fRequest.setRequest(req);
+        ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);
+
+        for (Double d : fResponse.getResponse()) {
+            System.out.println(d);
+        }
+    }
+
+    @Test
+    public void testInvestingAlgorithmTestPercentageExceed() {
+        InvestingForecastService seb = new InvestingForecastService();
+        Map<String, Double> req = new HashMap<>();
+        req.put("Energy", 50.0);
+        req.put("Pharmaceuticals", 100.0);
         ForecastRequest fRequest = new ForecastRequest();
         fRequest.setRequest(req);
         ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);

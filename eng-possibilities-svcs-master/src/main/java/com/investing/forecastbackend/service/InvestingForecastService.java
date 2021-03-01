@@ -17,9 +17,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.rmi.NotBoundException;
-import java.util.*;
 import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -131,7 +133,7 @@ public class InvestingForecastService {
     }
 
     private double compound(double principal, double cagr, int year) {
-        return principal * Math.pow(1 + cagr, year);
+        return principal * Math.pow(1.0 + cagr, year);
     }
 }
 
