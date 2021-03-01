@@ -110,8 +110,8 @@ public class InvestingForecastService {
                     if (year == 1) {
                         sectorGrowth.get(sector).add(compounded);
                     } else {
-                        double doublePrevYearSector = sectorGrowth.get(sector).get(year - 2);
-                        sectorGrowth.get(sector).add(compounded + doublePrevYearSector);
+                        double prevYearSectorGrowth = sectorGrowth.get(sector).get(year - 2);
+                        sectorGrowth.get(sector).add(compounded + prevYearSectorGrowth);
                     }
                 }
                 year++;
