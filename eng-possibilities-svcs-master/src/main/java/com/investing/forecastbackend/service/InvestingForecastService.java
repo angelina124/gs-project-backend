@@ -6,7 +6,6 @@ import com.investing.forecastbackend.model.ForecastRequest;
 import org.json.simple.*;
 import org.json.simple.parser.*;
 
-
 import java.io.File;
 
 import com.investing.forecastbackend.model.ForecastResponse;
@@ -64,12 +63,13 @@ public class InvestingForecastService {
         return listInvestmentDetail;
     }
 
-    //not sure how to handle all the exceptions in frontend
+    //return = principal(1 + CAGR/1)^year
     public ForecastResponse getInvestmentOptions(final ForecastRequest request) {
         // TODO write algorithm to calculate investment forecast from request configuration
         Map<String, Double> minimumsMap = makeMinList();
         Map<String, Double> cagRates = calculateCAGR();
-        List<Double> resp = new ArrayList<>();
+        List<Double> totalReturnsList = new ArrayList<>();
+        Map<String, List<Double>> sectorGrowth = new HashMap<>();
         ForecastResponse response = new ForecastResponse();
         double totalReturn = 0.0;
         int year = 1;
@@ -91,6 +91,11 @@ public class InvestingForecastService {
                 throw new Exception("Total invested percentage may not exceed 100%");
             }
 
+            sectorGrowth.put("Total Returns", totalReturnsList);
+            for (String sector : request.getRequest().keySet()) {
+                sectorGrowth.put(sector, new ArrayList<Double>());
+            }
+
             while (year <= 10) {
                 for (String sector : request.getRequest().keySet()) {
                     double percentage = request.getRequest().get(sector);
@@ -100,13 +105,19 @@ public class InvestingForecastService {
                     }
 
                     double cagr = cagRates.get(sector);
-                    totalReturn += compound(principal, cagr, year);
-                    //return = principal(1 + CAGR/1)^year
+                    double compounded = compound(principal, cagr, year);
+                    totalReturn += compounded;
+                    if (year == 1) {
+                        sectorGrowth.get(sector).add(compounded);
+                    } else {
+                        double doublePrevYearSector = sectorGrowth.get(sector).get(year - 2);
+                        sectorGrowth.get(sector).add(compounded + doublePrevYearSector);
+                    }
                 }
                 year++;
-                resp.add(totalReturn);
+                totalReturnsList.add(totalReturn);
             }
-            response.setResponse(resp);
+            response.setResponse(sectorGrowth);
             return response;
         } catch(Exception e) {
             e.printStackTrace(); //need to do something else here? do we need to place try catch differently?

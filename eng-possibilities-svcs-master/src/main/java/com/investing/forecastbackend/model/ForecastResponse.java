@@ -5,19 +5,20 @@ package com.investing.forecastbackend.model;
 //import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 //@Data
 //@Getter
 //@Setter
 // TODO Use Lombok for Getters and Setters (commented above), Optionally you can generate them.
 public class ForecastResponse {
-    private List<Double> response;
+    private Map<String, List<Double>> response;
 
-    public List<Double> getResponse() {
+    public Map<String, List<Double>> getResponse() {
         return response;
     }
 
-    public void setResponse(List<Double> response) {
+    public void setResponse(Map<String, List<Double>> response) {
         this.response = response;
     }
 }

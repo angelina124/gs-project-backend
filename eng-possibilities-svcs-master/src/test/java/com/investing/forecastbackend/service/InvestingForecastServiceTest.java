@@ -6,10 +6,13 @@ import java.util.Map;
 import com.investing.forecastbackend.model.ForecastRequest;
 import com.investing.forecastbackend.model.ForecastResponse;
 import org.junit.Test;
+import static org.junit.Assert.*;
 
 import com.investing.forecastbackend.model.InvestmentDetail;
 
 public class InvestingForecastServiceTest {
+    private Object Exception;
+
     //private InvestingForecastService seb;
     @Test
     public void testInvestingForecastServiceTest() {
@@ -36,13 +39,14 @@ public class InvestingForecastServiceTest {
         fRequest.setRequest(req);
         ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);
 
-        for (Double d : fResponse.getResponse()) {
-            System.out.println(d);
+        for (String sector : fResponse.getResponse().keySet()) {
+            System.out.println(sector + fResponse.getResponse().get(sector));
         }
     }
 
     @Test
     public void testInvestingAlgorithmTestPercentageMin() {
+        Exception e = new Exception();
         InvestingForecastService seb = new InvestingForecastService();
         Map<String, Double> req = new HashMap<>();
         req.put("Energy", 0.0);
@@ -51,8 +55,8 @@ public class InvestingForecastServiceTest {
         fRequest.setRequest(req);
         ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);
 
-        for (Double d : fResponse.getResponse()) {
-            System.out.println(d);
+        for (String sector : fResponse.getResponse().keySet()) {
+            System.out.println(sector + fResponse.getResponse().get(sector));
         }
     }
 
@@ -66,8 +70,8 @@ public class InvestingForecastServiceTest {
         fRequest.setRequest(req);
         ForecastResponse fResponse = seb.getInvestmentOptions(fRequest);
 
-        for (Double d : fResponse.getResponse()) {
-            System.out.println(d);
+        for (String sector : fResponse.getResponse().keySet()) {
+            System.out.println(sector + fResponse.getResponse().get(sector));
         }
     }
 
