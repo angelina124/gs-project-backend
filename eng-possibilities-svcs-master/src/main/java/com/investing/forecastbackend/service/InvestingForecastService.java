@@ -67,7 +67,7 @@ public class InvestingForecastService {
     public ForecastResponse getInvestmentOptions(final ForecastRequest request) {
         // TODO write algorithm to calculate investment forecast from request configuration
         Map<String, Double> minimumsMap = makeMinList();
-        Map<String, Double> cagRates = calculateCAGR();
+        Map<String, Double> avgRates = calculateAvgRateReturn();
         List<Double> totalReturnsList = new ArrayList<>();
         Map<String, List<Double>> sectorGrowth = new HashMap<>();
         ForecastResponse response = new ForecastResponse();
@@ -97,21 +97,26 @@ public class InvestingForecastService {
             }
 
             while (year <= 10) {
+                totalReturn = 0.0;
                 for (String sector : request.getRequest().keySet()) {
-                    double percentage = request.getRequest().get(sector);
-                    principal = totalReturn * percentage * 0.01;
+                    double percentage = request.getRequest().get(sector) * 0.01;
+                    //principal = totalReturn * percentage;
                     if (year == 1) {
-                        principal = 0.01 * percentage * 10000;
+                        principal = percentage * 10000;
                     }
 
-                    double cagr = cagRates.get(sector);
-                    double compounded = compound(principal, cagr, year);
-                    totalReturn += compounded;
+                    double rate = avgRates.get(sector);
+
                     if (year == 1) {
+                        double compounded = compound(principal, rate, 1);
                         sectorGrowth.get(sector).add(compounded);
+                        totalReturn += compounded;
+
                     } else {
-                        double prevYearSectorGrowth = sectorGrowth.get(sector).get(year - 2);
-                        sectorGrowth.get(sector).add(compounded + prevYearSectorGrowth);
+                       double prevYearSectorGrowth = sectorGrowth.get(sector).get(year - 2);
+                       double presentGrowth = compound(prevYearSectorGrowth, rate, 1);
+                       sectorGrowth.get(sector).add(presentGrowth);
+                       totalReturn += presentGrowth;
                     }
                 }
                 year++;
@@ -125,14 +130,19 @@ public class InvestingForecastService {
         return response;
     }
 
-    private Map<String, Double> calculateCAGR() {
-        Map<String, Double> cagRates = new HashMap<>();
+    private Map<String, Double> calculateAvgRateReturn() {
+        Map<String, Double> avgRates = new HashMap<>();
         List<InvestmentDetail> investmentDetailList = getInvestmentOptions();
+        double avg;
         for (InvestmentDetail detail : investmentDetailList) {
-            double cagr = Math.pow(((detail.getData()[detail.getData().length - 1]) / detail.getData()[0]), (1/9.0)) - 1;
-            cagRates.put(detail.getCategory(), cagr);
+            avg = 0.0;
+            for ( double d : detail.getData()) {
+                avg += d;
+            }
+            double rate = (avg / 10.0) * 0.01;
+            avgRates.put(detail.getCategory(), rate);
         }
-        return cagRates;
+        return avgRates;
     }
 
     private Map<String,Double> makeMinList() {
@@ -144,8 +154,8 @@ public class InvestingForecastService {
         return minimums;
     }
 
-    private double compound(double principal, double cagr, int year) {
-        return principal * Math.pow(1.0 + cagr, year);
+    private double compound(double principal, double rate, int year) {
+        return principal * Math.pow(1.0 + rate, year);
     }
 }
 

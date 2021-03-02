@@ -75,11 +75,15 @@ public class InvestingForecastServiceTest {
         }
     }
 
-    @Test
-    public void testCalculateCAGRTest() {
-        InvestingForecastService seb = new InvestingForecastService();
-        //Map<String, Double> cagr = seb.calculateCAGR();
-        //double x = cagr.get("Energy");
-        //System.out.println(x);
-    }
+//    @Test
+//    public void testCalculateAvgRateTest() {
+//        InvestingForecastService seb = new InvestingForecastService();
+//        Map<String, Double> cagr = seb.calculateAvgRateReturn();
+//        double x = cagr.get("Energy");
+//        System.out.println("Energy" + x);
+//        System.out.println("Real Estate" + cagr.get("Real Estate"));
+//        System.out.println("Technology" + cagr.get("Technology"));
+//        System.out.println("Financial Services" + cagr.get("Financial Services"));
+//
+//    }
 }
